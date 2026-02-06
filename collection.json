@@ -1,0 +1,926 @@
+{
+	"info": {
+		"_postman_id": "878ca189-7a9e-4ac5-876d-03b4f1c88669",
+		"name": "SmartShop API",
+		"description": "Collection complète pour tester l'API REST SmartShop B2B",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "42946048"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has userId\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.userId).to.exist;",
+									"    pm.environment.set(\"adminUserId\", jsonData.userId);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Connexion avec un compte administrateur"
+					},
+					"response": []
+				},
+				{
+					"name": "Login Client",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"abc_user\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Connexion avec un compte client"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"me"
+							]
+						},
+						"description": "Récupérer les informations de l'utilisateur connecté"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Déconnexion"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints d'authentification et gestion de session"
+		},
+		{
+			"name": "Clients",
+			"item": [
+				{
+					"name": "Create Client",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"clientId\", jsonData.id);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nom\": \"Entreprise \",\n  \"email\": \"contact@abcdf.com\",\n  \"telephone\": \"0612345678\",\n  \"adresse\": \"123 Rue de Paris, 75001 Paris\",\n  \"username\": \"abcfg_user\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/clients",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"clients"
+							]
+						},
+						"description": "Créer un nouveau client (ADMIN uniquement)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Clients",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/clients",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"clients"
+							]
+						},
+						"description": "Récupérer tous les clients (ADMIN uniquement)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Client By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/clients/{{clientId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"clients",
+								"{{clientId}}"
+							]
+						},
+						"description": "Récupérer un client par son ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Client",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nom\": \"Entreprise ABC d\",\n  \"email\": \"contact@abcdsd.com\",\n  \"telephone\": \"0698765432\",\n  \"adresse\": \"456 Avenue des Champs, 75008 Paris\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/clients/{{clientId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"clients",
+								"{{clientId}}"
+							]
+						},
+						"description": "Modifier un client (ADMIN ou CLIENT propriétaire)"
+					},
+					"response": []
+				}
+			],
+			"description": "Gestion des clients"
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "Create Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"productId\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nom\": \"Laptop Dell XPS 15\",\n  \"description\": \"Ordinateur portable haute performance\",\n  \"prixUnitaire\": 1299.99,\n  \"stock\": 50\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products"
+							]
+						},
+						"description": "Créer un nouveau produit (ADMIN uniquement)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products"
+							]
+						},
+						"description": "Récupérer tous les produits (non supprimés)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/products/{{productId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products",
+								"{{productId}}"
+							]
+						},
+						"description": "Récupérer un produit par son ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nom\": \"Laptop Dell XPS 15 - Edition 2024\",\n  \"description\": \"Ordinateur portable haute performance - Nouvelle génération\",\n  \"prixUnitaire\": 1399.99,\n  \"stock\": 45\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/products/{{productId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products",
+								"{{productId}}"
+							]
+						},
+						"description": "Modifier un produit (ADMIN uniquement)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Product (Soft Delete)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/products/{{productId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products",
+								"{{productId}}"
+							]
+						},
+						"description": "Supprimer un produit (soft delete - ADMIN uniquement)"
+					},
+					"response": []
+				}
+			],
+			"description": "Gestion des produits"
+		},
+		{
+			"name": "Promo Codes",
+			"item": [
+				{
+					"name": "Create Promo Code",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"promoCodeId\", jsonData.id);",
+									"pm.environment.set(\"promoCode\", jsonData.code);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"code\": \"PROMO-1234\",\n  \"discountPercentage\": 15.0,\n  \"startDate\": \"2024-12-08\",\n  \"endDate\": \"2024-12-31\",\n  \"usageLimit\": 100\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/promo-codes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"promo-codes"
+							]
+						},
+						"description": "Créer un code promo (ADMIN uniquement)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Promo Codes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/promo-codes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"promo-codes"
+							]
+						},
+						"description": "Récupérer tous les codes promo (ADMIN uniquement)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Promo Code By Code",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/promo-codes/{{promoCode}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"promo-codes",
+								"{{promoCode}}"
+							]
+						},
+						"description": "Récupérer un code promo par son code (ADMIN uniquement)"
+					},
+					"response": []
+				},
+				{
+					"name": "Deactivate Promo Code",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/promo-codes/{{promoCodeId}}/deactivate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"promo-codes",
+								"{{promoCodeId}}",
+								"deactivate"
+							]
+						},
+						"description": "Désactiver un code promo (ADMIN uniquement)"
+					},
+					"response": []
+				}
+			],
+			"description": "Gestion des codes promotionnels (ADMIN uniquement)"
+		},
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "Create Order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"orderId\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"clientId\": {{clientId}},\n  \"promoCode\": \"{{promoCode}}\",\n  \"items\": [\n    {\n      \"productId\": {{productId}},\n      \"quantity\": 2\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/orders",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"orders"
+							]
+						},
+						"description": "Créer une nouvelle commande"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Order Without Promo",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"clientId\": 5,\n  \"items\": [\n    {\n      \"productId\": 4,\n      \"quantity\": 30\n    },\n    {\n      \"productId\": 3,\n      \"quantity\": 15\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/orders",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"orders"
+							]
+						},
+						"description": "Créer une commande sans code promo"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Orders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/orders",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"orders"
+							]
+						},
+						"description": "Récupérer toutes les commandes (ADMIN uniquement)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Order By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/orders/{{orderId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"{{orderId}}"
+							]
+						},
+						"description": "Récupérer une commande par son ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Orders By Client",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/orders/client/{{clientId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"client",
+								"{{clientId}}"
+							]
+						},
+						"description": "Récupérer les commandes d'un client (ADMIN ou CLIENT propriétaire)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Orders By Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/orders/status/PENDING",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"status",
+								"PENDING"
+							]
+						},
+						"description": "Récupérer les commandes par statut (ADMIN uniquement)\nStatuts possibles: PENDING, CONFIRMED, REJECTED, CANCELLED"
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm Order",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/orders/{{orderId}}/confirm",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"{{orderId}}",
+								"confirm"
+							]
+						},
+						"description": "Confirmer une commande (ADMIN uniquement)\nLa commande doit être entièrement payée"
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel Order",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/orders/{{orderId}}/cancel",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"{{orderId}}",
+								"cancel"
+							]
+						},
+						"description": "Annuler une commande (ADMIN ou CLIENT propriétaire)"
+					},
+					"response": []
+				}
+			],
+			"description": "Gestion des commandes"
+		},
+		{
+			"name": "Payments",
+			"item": [
+				{
+					"name": "Add Payment - ESPECES",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"paymentId\", jsonData.id);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": 13,\n  \"amount\": 10079.928,\n  \"paymentMethod\": \"ESPECES\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/payments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"payments"
+							]
+						},
+						"description": "Ajouter un paiement en espèces (max 20 000€)"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Payment - CHEQUE",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": 12,\n  \"amount\": 1000.00,\n  \"paymentMethod\": \"CHEQUE\",\n  \"reference\": \"CHQ-2024-001\",\n  \"bankName\": \"CIH banck\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/payments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"payments"
+							]
+						},
+						"description": "Ajouter un paiement par chèque (référence obligatoire)"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Payment - VIREMENT",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": 13,\n  \"amount\": 79.92799999999988,\n  \"paymentMethod\": \"VIREMENT\",\n  \"reference\": \"VIR-2024-003\",\n  \"bankName\": \"CIH bank\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/payments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"payments"
+							]
+						},
+						"description": "Ajouter un paiement par virement (référence obligatoire)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Payments By Order",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/payments/order/{{orderId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"payments",
+								"order",
+								"{{orderId}}"
+							]
+						},
+						"description": "Récupérer tous les paiements d'une commande"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Payment Status - ENCAISSE",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/payments/{{paymentId}}/status?status=ENCAISSE",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"payments",
+								"{{paymentId}}",
+								"status"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "ENCAISSE"
+								}
+							]
+						},
+						"description": "Mettre à jour le statut d'un paiement à ENCAISSE (ADMIN uniquement)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Payment Status - REJETE",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/payments/{{paymentId}}/status?status=REJETE",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"payments",
+								"{{paymentId}}",
+								"status"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "REJETE"
+								}
+							]
+						},
+						"description": "Mettre à jour le statut d'un paiement à REJETE (ADMIN uniquement)"
+					},
+					"response": []
+				}
+			],
+			"description": "Gestion des paiements"
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:9090",
+			"type": "string"
+		},
+		{
+			"key": "clientId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "productId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "orderId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "paymentId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "promoCodeId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "promoCode",
+			"value": "WINTER2024",
+			"type": "string"
+		}
+	]
+}
