@@ -8,7 +8,9 @@ import { formatMoney } from '../../utils/money';
 import { AppContext } from '../../state/AppContext';
 
 export default function ClientsList() {
-    const [clients, setClients] = useState([]);
+    const [allClients, setAllClients] = useState([]);
+    const [filteredClients, setFilteredClients] = useState([]);
+    const [displayedClients, setDisplayedClients] = useState([]);
     const [page, setPage] = useState(1);
     const [perPage] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
@@ -17,68 +19,72 @@ export default function ClientsList() {
     const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, clientId: null });
     const { pushNotification } = useContext(AppContext);
 
-    const load = async () => {
-        setLoading(true);
-        try {
-            const params = { page, size: perPage };
-            if (q) params.q = q;
-            const res = await fetchClients(params);
-            setClients(res.content || res);
-            setTotalPages(res.totalPages || 1);
-        } catch (err) {
-            console.error(err);
-            pushNotification({ type: 'error', message: 'Erreur lors du chargement des clients' });
-        } finally {
-            setLoading(false);
-        }
-    };
+    // Load all clients once
+    useEffect(() => {
+        const load = async () => {
+            setLoading(true);
+            try {
+                const res = await fetchClients();
+                const data = Array.isArray(res) ? res : (res.content || []);
+                data.sort((a, b) => b.id - a.id);
+                setAllClients(data);
+                setFilteredClients(data);
+            } catch (err) {
+                console.error(err);
+                pushNotification({ type: 'error', message: 'Erreur lors du chargement des clients' });
+            } finally {
+                setLoading(false);
+            }
+        };
+        load();
+    }, []);
 
-    useEffect(() => { load(); }, [page]);
+    // Filter and paginate
+    useEffect(() => {
+        let filtered = allClients;
+        if (q) {
+            const lowerQ = q.toLowerCase();
+            filtered = allClients.filter(client =>
+                (client.nom && client.nom.toLowerCase().includes(lowerQ)) ||
+                (client.email && client.email.toLowerCase().includes(lowerQ))
+            );
+        }
+        setFilteredClients(filtered);
+        setTotalPages(Math.ceil(filtered.length / perPage) || 1);
+
+        // Paginate
+        const start = (page - 1) * perPage;
+        const end = start + perPage;
+        setDisplayedClients(filtered.slice(start, end));
+    }, [allClients, q, page, perPage]);
+
+    // Reset page on search
+    useEffect(() => {
+        setPage(1);
+    }, [q]);
 
     const handleDelete = async (id) => {
         try {
             await deleteClient(id);
             pushNotification({ type: 'success', message: 'Client supprimé avec succès' });
-            load();
+            // Reload
+            const res = await fetchClients();
+            const data = Array.isArray(res) ? res : (res.content || []);
+            setAllClients(data);
         } catch (err) {
             pushNotification({ type: 'error', message: 'Erreur lors de la suppression' });
         }
     };
 
     const getTierBadge = (tier) => {
-        const colors = {
-            BASIC: '#95a5a6',
-            SILVER: '#7f8c8d',
-            GOLD: '#f1c40f',
-            PLATINUM: '#e5e4e2'
-        };
-
-        const bgColors = {
-            BASIC: '#ecf0f1',
-            SILVER: '#bdc3c7',
-            GOLD: '#f9e79f',
-            PLATINUM: '#aab7b8'
-        };
-
-        return (
-            <span style={{
-                backgroundColor: bgColors[tier] || '#ecf0f1',
-                color: '#2c3e50',
-                padding: '0.25rem 0.5rem',
-                borderRadius: '0.25rem',
-                fontSize: '0.75rem',
-                fontWeight: 'bold',
-                border: `1px solid ${colors[tier] || '#bdc3c7'}`
-            }}>
-                {tier}
-            </span>
-        );
+        const tierClass = `badge badge-${tier ? tier.toLowerCase() : 'basic'}`;
+        return <span className={tierClass}>{tier || 'BASIC'}</span>;
     };
 
     const columns = [
         {
             key: 'nom', label: 'Nom', render: r => (
-                <Link to={`/clients/${r.id}`} style={{ fontWeight: 'bold', color: '#2c3e50', textDecoration: 'none' }}>
+                <Link to={`/clients/${r.id}`} style={{ fontWeight: 'bold', color: 'var(--primary)', textDecoration: 'none' }}>
                     {r.nom}
                 </Link>
             )
@@ -89,108 +95,54 @@ export default function ClientsList() {
         { key: 'totalSpent', label: 'Total Dépensé', render: r => formatMoney(r.totalSpent) },
         {
             key: 'actions', label: 'Actions', render: r => (
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <Link
-                        to={`/clients/${r.id}/edit`}
-                        style={{
-                            padding: '0.5rem 1rem',
-                            backgroundColor: '#3498db',
-                            color: 'white',
-                            textDecoration: 'none',
-                            borderRadius: '0.25rem',
-                            fontSize: '0.875rem',
-                        }}
-                    >
+                <div style={{ display: 'flex', gap: '0.5rem', minWidth: '100px' }}>
+                    <Link to={`/clients/${r.id}/edit`} className="btn btn-sm btn-info" style={{ color: 'white' }}>
                         Modifier
                     </Link>
-                    {/* Only admins might want to delete clients - but let's keep it consistent */}
-                    {/* 
-        <button 
-          onClick={() => setDeleteDialog({ isOpen: true, clientId: r.id })}
-          style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: '#e74c3c',
-            color: 'white',
-            border: 'none',
-            borderRadius: '0.25rem',
-            cursor: 'pointer',
-            fontSize: '0.875rem',
-          }}
-        >
-          Supprimer
-        </button>
-        */}
                 </div>
             )
         }
     ];
 
     return (
-        <div>
-            <h1 style={{ marginBottom: '1.5rem' }}>Clients</h1>
-
-            <div style={{
-                display: 'flex',
-                gap: '0.75rem',
-                marginBottom: '1.5rem',
-                alignItems: 'center',
-            }}>
-                <input
-                    placeholder="Rechercher un client..."
-                    value={q}
-                    onChange={e => setQ(e.target.value)}
-                    style={{
-                        flex: 1,
-                        padding: '0.75rem',
-                        border: '1px solid #ddd',
-                        borderRadius: '0.25rem',
-                        fontSize: '1rem',
-                    }}
-                />
-                <button
-                    onClick={() => { setPage(1); load(); }}
-                    style={{
-                        padding: '0.75rem 1.5rem',
-                        backgroundColor: '#3498db',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '0.25rem',
-                        cursor: 'pointer',
-                        fontSize: '1rem',
-                    }}
-                >
-                    Rechercher
-                </button>
-                <Link
-                    to="/clients/new"
-                    style={{
-                        padding: '0.75rem 1.5rem',
-                        backgroundColor: '#27ae60',
-                        color: 'white',
-                        textDecoration: 'none',
-                        borderRadius: '0.25rem',
-                        fontSize: '1rem',
-                    }}
-                >
-                    + Nouveau client
+        <div className="container">
+            <div className="page-header">
+                <div className="page-title">
+                    <h1>Clients</h1>
+                    <p>Gérez votre base de clients</p>
+                </div>
+                <Link to="/clients/new" className="btn btn-primary">
+                    <span>+</span> Nouveau client
                 </Link>
             </div>
 
-            {loading ? (
-                <div style={{
-                    textAlign: 'center',
-                    padding: '3rem',
-                    backgroundColor: 'white',
-                    borderRadius: '0.5rem',
-                }}>
-                    Chargement...
+            <div className="card">
+                <div className="toolbar">
+                    <div className="search-wrapper">
+                        <span className="search-icon">🔍</span>
+                        <input
+                            className="input"
+                            placeholder="Rechercher un client..."
+                            value={q}
+                            onChange={e => setQ(e.target.value)}
+                        />
+                    </div>
+                    <button className="btn btn-secondary" onClick={() => { /* automatic */ }}>
+                        Rechercher
+                    </button>
                 </div>
-            ) : (
-                <>
-                    <Table columns={columns} data={clients} />
-                    <Pagination page={page} totalPages={totalPages} onChange={p => setPage(p)} />
-                </>
-            )}
+
+                {loading ? (
+                    <div className="loading-state">Chargement...</div>
+                ) : (
+                    <>
+                        <div className="table-container">
+                            <Table columns={columns} data={displayedClients} />
+                        </div>
+                        <Pagination page={page} totalPages={totalPages} onChange={p => setPage(p)} />
+                    </>
+                )}
+            </div>
 
             <Dialog
                 isOpen={deleteDialog.isOpen}
