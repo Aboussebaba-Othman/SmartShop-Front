@@ -22,6 +22,10 @@ import OrdersList from './pages/orders/OrdersList';
 import NewOrder from './pages/orders/NewOrder';
 import OrderDetails from './pages/orders/OrderDetails';
 
+// Promo Codes
+import PromoCodesList from './pages/promo/PromoCodesList';
+import NewPromoCode from './pages/promo/NewPromoCode';
+
 export const router = createBrowserRouter([
     {
         path: '/login',
@@ -81,6 +85,15 @@ export const router = createBrowserRouter([
             {
                 path: 'orders/:id',
                 element: <OrderDetails />,
+            },
+            // Promo Codes routes
+            {
+                path: 'promo-codes',
+                element: <PromoCodesList />,
+            },
+            {
+                path: 'promo-codes/new',
+                element: <NewPromoCode />,
             },
         ],
     },

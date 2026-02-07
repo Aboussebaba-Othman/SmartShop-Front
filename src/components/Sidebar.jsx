@@ -20,6 +20,7 @@ export default function Sidebar() {
         { path: '/products', label: 'Produits', icon: '📦' },
         { path: '/clients', label: 'Clients', icon: '👥' },
         { path: '/orders', label: 'Commandes', icon: '🛒' },
+        { path: '/promo-codes', label: 'Codes Promo', icon: '🎟️' },
     ];
 
     // Filter menu items based on role
@@ -35,6 +36,10 @@ export default function Sidebar() {
             padding: '1.5rem',
             display: 'flex',
             flexDirection: 'column',
+            position: 'sticky',
+            top: 0,
+            height: '100vh',
+            overflowY: 'auto'
         }}>
             <div style={{ marginBottom: '2rem' }}>
                 <h1 style={{ fontSize: '1.5rem', margin: 0 }}>SmartShop</h1>
