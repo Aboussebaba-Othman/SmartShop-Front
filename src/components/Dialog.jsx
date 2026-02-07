@@ -7,6 +7,8 @@ export default function Dialog({
     confirmText = 'Confirmer',
     cancelText = 'Annuler',
     confirmColor = '#e74c3c',
+    autoClose = true,
+    children
 }) {
     if (!isOpen) return null;
 
@@ -21,7 +23,7 @@ export default function Dialog({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 1000,
+            zIndex: 9999,
         }}>
             <div style={{
                 backgroundColor: 'white',
@@ -32,9 +34,10 @@ export default function Dialog({
                 width: '90%',
             }}>
                 <h3 style={{ marginBottom: '1rem', fontSize: '1.25rem' }}>{title}</h3>
-                <p style={{ marginBottom: '1.5rem', color: '#666' }}>{message}</p>
+                {message && <p style={{ marginBottom: '1.5rem', color: '#666' }}>{message}</p>}
+                {children}
 
-                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
                     <button
                         onClick={onClose}
                         style={{
@@ -52,7 +55,7 @@ export default function Dialog({
                     <button
                         onClick={() => {
                             onConfirm();
-                            onClose();
+                            if (autoClose) onClose();
                         }}
                         style={{
                             padding: '0.75rem 1.5rem',

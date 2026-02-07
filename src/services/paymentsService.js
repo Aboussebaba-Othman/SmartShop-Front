@@ -8,3 +8,7 @@ export const createPayment = (payload) => api.post('/payments', payload).then(r 
 
 // Get payment by ID
 export const fetchPaymentById = (id) => api.get(`/payments/${id}`).then(r => r.data);
+
+// Update payment status (ADMIN only)
+export const updatePaymentStatus = (paymentId, status) =>
+    api.patch(`/payments/${paymentId}/status?status=${status}`).then(r => r.data);
