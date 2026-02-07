@@ -42,83 +42,81 @@ export default function ClientDetails() {
     if (!client) return <div style={{ padding: '2rem', textAlign: 'center' }}>Client introuvable</div>;
 
     const getTierBadge = (tier) => {
-        const bgColors = {
-            BASIC: '#ecf0f1',
-            SILVER: '#bdc3c7',
-            GOLD: '#f9e79f',
-            PLATINUM: '#aab7b8'
-        };
-        return (
-            <span style={{
-                backgroundColor: bgColors[tier] || '#ecf0f1',
-                color: '#2c3e50',
-                padding: '0.25rem 0.5rem',
-                borderRadius: '0.25rem',
-                fontSize: '0.875rem',
-                fontWeight: 'bold',
-            }}>
-                {tier}
-            </span>
-        );
+        const tierClass = `badge badge-${tier ? tier.toLowerCase() : 'basic'}`;
+        return <span className={tierClass}>{tier || 'BASIC'}</span>;
     };
 
     const orderColumns = [
-        { key: 'id', label: 'N° Commande', render: r => <Link to={`/orders/${r.id}`}>#{r.id}</Link> },
+        {
+            key: 'id',
+            label: 'N° Commande',
+            render: r => <Link to={`/orders/${r.id}`} style={{ fontWeight: 'bold', color: 'var(--primary)' }}>#{r.id}</Link>
+        },
         { key: 'date', label: 'Date', render: r => new Date(r.orderDate).toLocaleDateString() },
-        { key: 'totalTTC', label: 'Total TTC', render: r => formatMoney(r.totalTTC) },
-        { key: 'status', label: 'Statut', render: r => r.status }, // We can add badge later
+        {
+            key: 'totalTTC',
+            label: 'Total TTC',
+            render: r => <span style={{ fontWeight: 'bold' }}>{formatMoney(r.totalTTC)}</span>
+        },
+        {
+            key: 'status',
+            label: 'Statut',
+            render: r => <span className={`badge badge-${r.status.toLowerCase()}`}>{r.status}</span>
+        },
         { key: 'paid', label: 'Payé', render: r => formatMoney(r.amountPaid) },
     ];
 
     return (
-        <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <h1 style={{ margin: 0 }}>{client.nom}</h1>
-                <Link
-                    to={`/clients/${client.id}/edit`}
-                    style={{
-                        padding: '0.5rem 1rem',
-                        backgroundColor: '#3498db',
-                        color: 'white',
-                        textDecoration: 'none',
-                        borderRadius: '0.25rem',
-                    }}
-                >
+        <div className="container">
+            <div className="page-header">
+                <div className="page-title">
+                    <h1>{client.nom}</h1>
+                    <p>Détails du client #{client.id}</p>
+                </div>
+                <Link to={`/clients/${client.id}/edit`} className="btn btn-primary">
                     Modifier
                 </Link>
             </div>
 
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                gap: '1.5rem',
-                marginBottom: '2rem'
-            }}>
-                <div style={{ backgroundColor: 'white', padding: '1.5rem', borderRadius: '0.5rem', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-                    <h3 style={{ marginTop: 0, borderBottom: '1px solid #eee', paddingBottom: '0.5rem' }}>Informations</h3>
-                    <p><strong>Email:</strong> {client.email}</p>
-                    <p><strong>Niveau de fidélité:</strong> {getTierBadge(client.tier)}</p>
-                    <p><strong>Date d'inscription:</strong> {new Date(client.firstOrderDate).toLocaleDateString()}</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
+                <div className="card" style={{ marginBottom: 0 }}>
+                    <h3 style={{ marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>Informations</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span style={{ color: 'var(--text-muted)' }}>Email:</span>
+                            <span style={{ fontWeight: '500' }}>{client.email}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ color: 'var(--text-muted)' }}>Niveau de fidélité:</span>
+                            {getTierBadge(client.tier)}
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span style={{ color: 'var(--text-muted)' }}>Date d'inscription:</span>
+                            <span>{new Date(client.firstOrderDate).toLocaleDateString()}</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div style={{ backgroundColor: 'white', padding: '1.5rem', borderRadius: '0.5rem', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-                    <h3 style={{ marginTop: 0, borderBottom: '1px solid #eee', paddingBottom: '0.5rem' }}>Statistiques</h3>
+                <div className="card" style={{ marginBottom: 0 }}>
+                    <h3 style={{ marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>Statistiques</h3>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                        <div>
-                            <div style={{ fontSize: '0.875rem', color: '#666' }}>Total Commandes</div>
-                            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{client.totalOrders}</div>
+                        <div style={{ padding: '1rem', backgroundColor: 'var(--background)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+                            <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Total Commandes</div>
+                            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--primary)' }}>{client.totalOrders}</div>
                         </div>
-                        <div>
-                            <div style={{ fontSize: '0.875rem', color: '#666' }}>Total Dépensé</div>
-                            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#27ae60' }}>{formatMoney(client.totalSpent)}</div>
+                        <div style={{ padding: '1rem', backgroundColor: 'var(--background)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+                            <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Total Dépensé</div>
+                            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--success)' }}>{formatMoney(client.totalSpent)}</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <h2 style={{ marginBottom: '1rem' }}>Historique des commandes</h2>
-            <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', overflow: 'hidden' }}>
-                <Table columns={orderColumns} data={orders} />
+            <div className="card">
+                <h3 style={{ marginBottom: '1.5rem' }}>Historique des commandes</h3>
+                <div className="table-container">
+                    <Table columns={orderColumns} data={orders} />
+                </div>
                 <Pagination page={page} totalPages={totalPages} onChange={setPage} />
             </div>
         </div>
